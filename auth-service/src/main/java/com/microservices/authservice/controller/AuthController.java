@@ -2,39 +2,30 @@ package com.microservices.authservice.controller;
 
 import com.microservices.authservice.dto.JwtResponse;
 import com.microservices.authservice.dto.LoginRequest;
-import com.microservices.authservice.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
+import com.microservices.authservice.dto.RegisterRequest;
+import com.microservices.authservice.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    public AuthController(
-            @Value("${security.jwt.secret}") String secret,
-            @Value("${security.jwt.expiration}") long expiration
-    ) {
-        this.jwtUtil = new JwtUtil(secret, expiration);
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        authService.register(request);
+        return ResponseEntity.ok().body("User registered successfully");
     }
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestBody LoginRequest request) {
-
-        // ⚠️ TEMPORAIRE (sans DB)
-        if (!"admin".equals(request.getUsername()) ||
-                !"admin".equals(request.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-
-        String token = jwtUtil.generateToken(
-                request.getUsername(),
-                List.of("ROLE_ADMIN")
-        );
-
-        return new JwtResponse(token);
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
+        String token = authService.login(request);
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }
