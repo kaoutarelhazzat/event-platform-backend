@@ -21,7 +21,10 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepo, RoleRepository roleRepo, PasswordEncoder encoder, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepo,
+                       RoleRepository roleRepo,
+                       PasswordEncoder encoder,
+                       JwtUtil jwtUtil) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.encoder = encoder;
@@ -29,22 +32,24 @@ public class AuthService {
     }
 
     public void register(RegisterRequest request) {
+
         if (userRepo.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
 
-        Role roleUser = roleRepo.findByName("ROLE_USER")
-                .orElseGet(() -> roleRepo.save(new Role("ROLE_USER")));
+        Role userRole = roleRepo.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Role USER not found"));
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(encoder.encode(request.getPassword()));
-        user.setRoles(Set.of(roleUser));
+        user.setRoles(Set.of(userRole));
 
         userRepo.save(user);
     }
 
     public String login(LoginRequest request) {
+
         User user = userRepo.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 
@@ -52,7 +57,11 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        List<String> roles = user.getRoles().stream().map(Role::getName).toList();
+        List<String> roles = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .toList();
+
         return jwtUtil.generateToken(user.getId(), roles);
     }
 }
