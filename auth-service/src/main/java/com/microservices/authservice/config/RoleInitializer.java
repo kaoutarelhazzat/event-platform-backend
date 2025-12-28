@@ -18,6 +18,9 @@ public class RoleInitializer {
             if (roleRepository.findByName("ADMIN").isEmpty()) {
                 roleRepository.save(new Role("ADMIN"));
             }
+            if (roleRepository.findByName("ORGANIZER").isEmpty()) {
+                roleRepository.save(new Role("ORGANIZER"));
+            }
         };
     }
 }
