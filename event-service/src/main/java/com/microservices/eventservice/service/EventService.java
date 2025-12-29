@@ -42,9 +42,38 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public EventResponse findById(Long id) {
-        Event e = repository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+        Event e = repository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
         return map(e);
     }
+
+    /* ================================
+       🎟️ GESTION DES TICKETS
+       ================================ */
+
+    public void decreaseTickets(Long id, int count) {
+        Event e = repository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
+
+        if (e.getRemainingTickets() < count) {
+            throw new IllegalStateException("Not enough remaining tickets");
+        }
+
+        e.setRemainingTickets(e.getRemainingTickets() - count);
+        repository.save(e);
+    }
+
+    public void increaseTickets(Long id, int count) {
+        Event e = repository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
+
+        e.setRemainingTickets(e.getRemainingTickets() + count);
+        repository.save(e);
+    }
+
+    /* ================================
+       🔁 MAPPING
+       ================================ */
 
     private EventResponse map(Event e) {
         EventResponse r = new EventResponse();
@@ -58,7 +87,9 @@ public class EventService {
         r.capacity = e.getCapacity();
         r.remainingTickets = e.getRemainingTickets();
         r.organizerId = e.getOrganizerId();
-        r.participants = (e.getParticipants() == null) ? List.of() : e.getParticipants();
+        r.participants = (e.getParticipants() == null)
+                ? List.of()
+                : e.getParticipants();
         return r;
     }
 }

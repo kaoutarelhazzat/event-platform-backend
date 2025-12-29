@@ -11,12 +11,17 @@ public interface EventClient {
     @GetMapping("/events/{id}")
     EventDto getEvent(@PathVariable Long id);
 
+    @PutMapping("/events/{id}/tickets/decrease")
+    void decreaseTickets(
+            @PathVariable Long id,
+            @RequestParam int count
+    );
 
-    @PatchMapping("/events/{id}/tickets/decrease")
-    void decreaseTickets(@PathVariable Long id, @RequestParam int count);
-
-    @PatchMapping("/events/{id}/tickets/increase")
-    void increaseTickets(@PathVariable Long id, @RequestParam int count);
+    @PutMapping("/events/{id}/tickets/increase")
+    void increaseTickets(
+            @PathVariable Long id,
+            @RequestParam int count
+    );
 
     class EventDto {
         public Long id;

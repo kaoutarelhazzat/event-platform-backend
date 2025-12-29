@@ -34,4 +34,26 @@ public class EventController {
     public EventResponse getById(@PathVariable Long id) {
         return service.findById(id);
     }
+
+    /* ================================
+       🎟️ GESTION DES TICKETS (PUT)
+       ================================ */
+
+    @PutMapping("/{id}/tickets/decrease")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void decreaseTickets(
+            @PathVariable Long id,
+            @RequestParam int count
+    ) {
+        service.decreaseTickets(id, count);
+    }
+
+    @PutMapping("/{id}/tickets/increase")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void increaseTickets(
+            @PathVariable Long id,
+            @RequestParam int count
+    ) {
+        service.increaseTickets(id, count);
+    }
 }
